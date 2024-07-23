@@ -10,3 +10,9 @@ cli工具: https://github.com/golang-migrate/migrate
 
 执行变更到db：
 `migrate -path db/migration -database "$(DB_URL)" -verbose up`
+
+### sql compiler (golang)
+cli工具：https://github.com/sqlc-dev/sqlc
+
+sqlc基本配置：https://docs.sqlc.dev/en/latest/reference/config.html
+sqlc基本语法：https://docs.sqlc.dev/en/latest/tutorials/getting-started-postgresql.html#schema-and-queries
