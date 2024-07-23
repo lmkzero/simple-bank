@@ -1,2 +1,2 @@
 # simple-bank
-my project of backend master class
+my project for backend master class
