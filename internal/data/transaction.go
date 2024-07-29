@@ -25,6 +25,7 @@ func (s *Store) execTransaction(ctx context.Context, f func(*db.Queries) error) 
 func (s *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResults, error) {
 	results := TransferTxResults{}
 	if err := s.execTransaction(ctx, func(q *db.Queries) error {
+		// 新增流水记录
 		transfer, err := q.CreateTransfer(
 			ctx,
 			db.CreateTransferParams{
@@ -56,11 +57,27 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferT
 		if err != nil {
 			return err
 		}
-		// TODO 更新两个账户的余额
+		// 更新两个账户的余额
+		newFromAccount, err := q.AddAccountBalance(ctx, db.AddAccountBalanceParams{
+			Amount: -arg.Amount,
+			ID:     arg.FromAccountID,
+		})
+		if err != nil {
+			return err
+		}
+		newToAccount, err := q.AddAccountBalance(ctx, db.AddAccountBalanceParams{
+			Amount: arg.Amount,
+			ID:     arg.ToAccountID,
+		})
+		if err != nil {
+			return err
+		}
 		// 赋值转账事务结果
 		results.Transfer = transfer
 		results.FromEntry = fromEntry
 		results.ToEntry = toEntry
+		results.FromAccount = newFromAccount
+		results.ToAccount = newToAccount
 		return nil
 	}); err != nil {
 		return results, err
