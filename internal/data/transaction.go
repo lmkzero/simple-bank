@@ -58,17 +58,7 @@ func (s *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferT
 			return err
 		}
 		// 更新两个账户的余额
-		newFromAccount, err := q.AddAccountBalance(ctx, db.AddAccountBalanceParams{
-			Amount: -arg.Amount,
-			ID:     arg.FromAccountID,
-		})
-		if err != nil {
-			return err
-		}
-		newToAccount, err := q.AddAccountBalance(ctx, db.AddAccountBalanceParams{
-			Amount: arg.Amount,
-			ID:     arg.ToAccountID,
-		})
+		newFromAccount, newToAccount, err := updateBalance(ctx, q, arg)
 		if err != nil {
 			return err
 		}
@@ -99,4 +89,43 @@ type TransferTxResults struct {
 	ToAccount   db.Account  `json:"to_account"`
 	FromEntry   db.Entry    `json:"from_entry"`
 	ToEntry     db.Entry    `json:"to_entry"`
+}
+
+// updateBalance 更新两个账户的余额
+// * A -> B & B -> A 两个事务同时执行时，有可能出现死锁
+// * 始终保证account id较小的先更新，防止死锁
+func updateBalance(ctx context.Context,
+	q *db.Queries, arg TransferTxParams) (db.Account, db.Account, error) {
+	if arg.FromAccountID < arg.ToAccountID {
+		newFromAccount, err := q.AddAccountBalance(ctx, db.AddAccountBalanceParams{
+			Amount: -arg.Amount,
+			ID:     arg.FromAccountID,
+		})
+		if err != nil {
+			return db.Account{}, db.Account{}, err
+		}
+		newToAccount, err := q.AddAccountBalance(ctx, db.AddAccountBalanceParams{
+			Amount: arg.Amount,
+			ID:     arg.ToAccountID,
+		})
+		if err != nil {
+			return db.Account{}, db.Account{}, err
+		}
+		return newFromAccount, newToAccount, nil
+	}
+	newToAccount, err := q.AddAccountBalance(ctx, db.AddAccountBalanceParams{
+		Amount: arg.Amount,
+		ID:     arg.ToAccountID,
+	})
+	if err != nil {
+		return db.Account{}, db.Account{}, err
+	}
+	newFromAccount, err := q.AddAccountBalance(ctx, db.AddAccountBalanceParams{
+		Amount: -arg.Amount,
+		ID:     arg.FromAccountID,
+	})
+	if err != nil {
+		return db.Account{}, db.Account{}, err
+	}
+	return newFromAccount, newToAccount, nil
 }
