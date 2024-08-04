@@ -16,6 +16,8 @@ import (
 
 type BankHTTPServer interface {
 	CreateAccount(context.Context, *CreateAccountReq) (*CreateAccountRsp, error)
+
+	GetAccount(context.Context, *GetAccountReq) (*GetAccountRsp, error)
 }
 
 func RegisterBankHTTPServer(r gin.IRouter, srv BankHTTPServer) {
@@ -52,8 +54,36 @@ func (s *Bank) CreateAccount_0(ctx *gin.Context) {
 	ginx.Response(ctx, out)
 }
 
+func (s *Bank) GetAccount_0(ctx *gin.Context) {
+	var in GetAccountReq
+
+	if err := ginx.ShouldBindUri(ctx, &in); err != nil {
+		ginx.ErrorResponse(ctx, err)
+		return
+	}
+
+	if err := ginx.ShouldBind(ctx, &in); err != nil {
+		ginx.ErrorResponse(ctx, err)
+		return
+	}
+	md := metadata.New(nil)
+	for k, v := range ctx.Request.Header {
+		md.Set(k, v...)
+	}
+	newCtx := metadata.NewIncomingContext(ctx.Request.Context(), md)
+	out, err := s.server.(BankHTTPServer).GetAccount(newCtx, &in)
+	if err != nil {
+		ginx.ErrorResponse(ctx, err)
+		return
+	}
+
+	ginx.Response(ctx, out)
+}
+
 func (s *Bank) RegisterService() {
 
 	s.router.Handle("POST", "/accounts", s.CreateAccount_0)
+
+	s.router.Handle("GET", "/accounts/:id", s.GetAccount_0)
 
 }

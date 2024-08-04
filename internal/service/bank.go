@@ -3,8 +3,10 @@ package service
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
+	"github.com/jackc/pgx/v5"
 	v1 "github.com/lmkzero/simple-bank/api/bank/v1"
 	"github.com/lmkzero/simple-bank/internal/data"
 	"github.com/lmkzero/simple-bank/internal/data/db"
@@ -38,10 +40,35 @@ func (b *BankService) CreateAccount(ctx context.Context, req *v1.CreateAccountRe
 		return nil, err
 	}
 	return &v1.CreateAccountRsp{
-		Id:       account.ID,
-		Owner:    account.Owner,
-		Balance:  account.Balance,
-		Currency: account.Currency,
-		CreateAt: timestamppb.New(account.CreatedAt.Time),
+		CreatedAccount: &v1.Account{
+			Id:       account.ID,
+			Owner:    account.Owner,
+			Balance:  account.Balance,
+			Currency: account.Currency,
+			CreateAt: timestamppb.New(account.CreatedAt.Time),
+		},
+	}, nil
+}
+
+// GetAccount 查询账户
+func (b *BankService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v1.GetAccountRsp, error) {
+	if err := req.Validate(); err != nil {
+		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
+	}
+	account, err := b.store.GetAccount(ctx, req.GetId())
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, verr.NotFound(http.StatusNotFound, err.Error())
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &v1.GetAccountRsp{
+		Account: &v1.Account{
+			Id:       account.ID,
+			Owner:    account.Owner,
+			Balance:  account.Balance,
+			Currency: account.Currency,
+			CreateAt: timestamppb.New(account.CreatedAt.Time),
+		},
 	}, nil
 }

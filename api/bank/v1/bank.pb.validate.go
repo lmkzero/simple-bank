@@ -184,20 +184,12 @@ func (m *CreateAccountRsp) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
-
-	// no validation rules for Owner
-
-	// no validation rules for Balance
-
-	// no validation rules for Currency
-
 	if all {
-		switch v := interface{}(m.GetCreateAt()).(type) {
+		switch v := interface{}(m.GetCreatedAccount()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CreateAccountRspValidationError{
-					field:  "CreateAt",
+					field:  "CreatedAccount",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -205,16 +197,16 @@ func (m *CreateAccountRsp) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, CreateAccountRspValidationError{
-					field:  "CreateAt",
+					field:  "CreatedAccount",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreateAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetCreatedAccount()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreateAccountRspValidationError{
-				field:  "CreateAt",
+				field:  "CreatedAccount",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -298,3 +290,378 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateAccountRspValidationError{}
+
+// Validate checks the field values on Account with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Account) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Account with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in AccountMultiError, or nil if none found.
+func (m *Account) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Account) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Owner
+
+	// no validation rules for Balance
+
+	// no validation rules for Currency
+
+	if all {
+		switch v := interface{}(m.GetCreateAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AccountValidationError{
+					field:  "CreateAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AccountValidationError{
+					field:  "CreateAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreateAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AccountValidationError{
+				field:  "CreateAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AccountMultiError(errors)
+	}
+
+	return nil
+}
+
+// AccountMultiError is an error wrapping multiple validation errors returned
+// by Account.ValidateAll() if the designated constraints aren't met.
+type AccountMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AccountMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AccountMultiError) AllErrors() []error { return m }
+
+// AccountValidationError is the validation error returned by Account.Validate
+// if the designated constraints aren't met.
+type AccountValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AccountValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AccountValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AccountValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AccountValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AccountValidationError) ErrorName() string { return "AccountValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AccountValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAccount.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AccountValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AccountValidationError{}
+
+// Validate checks the field values on GetAccountReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetAccountReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetAccountReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetAccountReqMultiError, or
+// nil if none found.
+func (m *GetAccountReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetAccountReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetId() <= 0 {
+		err := GetAccountReqValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetAccountReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetAccountReqMultiError is an error wrapping multiple validation errors
+// returned by GetAccountReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetAccountReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetAccountReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetAccountReqMultiError) AllErrors() []error { return m }
+
+// GetAccountReqValidationError is the validation error returned by
+// GetAccountReq.Validate if the designated constraints aren't met.
+type GetAccountReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAccountReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAccountReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAccountReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAccountReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAccountReqValidationError) ErrorName() string { return "GetAccountReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetAccountReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAccountReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAccountReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAccountReqValidationError{}
+
+// Validate checks the field values on GetAccountRsp with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetAccountRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetAccountRsp with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetAccountRspMultiError, or
+// nil if none found.
+func (m *GetAccountRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetAccountRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetAccount()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetAccountRspValidationError{
+					field:  "Account",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetAccountRspValidationError{
+					field:  "Account",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAccount()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetAccountRspValidationError{
+				field:  "Account",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetAccountRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetAccountRspMultiError is an error wrapping multiple validation errors
+// returned by GetAccountRsp.ValidateAll() if the designated constraints
+// aren't met.
+type GetAccountRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetAccountRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetAccountRspMultiError) AllErrors() []error { return m }
+
+// GetAccountRspValidationError is the validation error returned by
+// GetAccountRsp.Validate if the designated constraints aren't met.
+type GetAccountRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAccountRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAccountRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAccountRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAccountRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAccountRspValidationError) ErrorName() string { return "GetAccountRspValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetAccountRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAccountRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAccountRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAccountRspValidationError{}

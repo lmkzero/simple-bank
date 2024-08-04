@@ -15,6 +15,12 @@ service Bank {
             post: "/accounts"
         };
     }
+    // GetAccount 查询账户
+    rpc GetAccount (GetAccountReq) returns (GetAccountRsp) {
+        option (google.api.http) = {
+            get: "/accounts/:id:" // ? 工具生成的代码中会截断最后一个冒号，正常定义path反而是错误的
+        };
+    }
 }
 
 message CreateAccountReq {
@@ -26,9 +32,21 @@ message CreateAccountReq {
 }
 
 message CreateAccountRsp {
+    Account created_account = 1;
+}
+
+message Account {
 	int64 id = 1;
     string owner = 2;
 	int64 balance = 3;
 	string currency = 4;
 	google.protobuf.Timestamp create_at = 5;
+}
+
+message GetAccountReq {
+    int64 id = 1 [(validate.rules).int64.gt = 0];   // @gotags: uri:"id"
+}
+
+message GetAccountRsp {
+    Account account = 1;
 }
