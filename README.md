@@ -33,6 +33,7 @@ protoc插件：https://github.com/varluffy/protoc-gen-go-gin
 
 ### pb tag
 Gin在绑定uri（ShouldBindUri）时，需要对应结构体包含"uri"标记字段。
+
 cli工具：https://github.com/favadi/protoc-go-inject-tag
 
 ### third_party
@@ -46,4 +47,6 @@ protoc --proto_path=./api/bank/v1 \
         --go-gin_out ./api/bank/v1 --go-gin_opt=paths=source_relative \
         --validate_out=paths=source_relative,lang=go:./api/bank/v1 \
         bank.proto
+
+protoc-go-inject-tag -input="./api/bank/v1/*.pb.go"
 ```
