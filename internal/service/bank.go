@@ -72,3 +72,30 @@ func (b *BankService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v
 		},
 	}, nil
 }
+
+// ListAccounts 账户列表查询
+func (b *BankService) ListAccounts(ctx context.Context, req *v1.ListAccountsReq) (*v1.ListAccountsRsp, error) {
+	if err := req.Validate(); err != nil {
+		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
+	}
+	accounts, err := b.store.ListAccounts(ctx, db.ListAccountsParams{
+		Limit:  int32(req.GetLimit()),
+		Offset: int32(req.GetOffset()),
+	})
+	if err != nil {
+		return nil, err
+	}
+	pbAccounts := make([]*v1.Account, 0, len(accounts))
+	for _, account := range accounts {
+		pbAccounts = append(pbAccounts, &v1.Account{
+			Id:       account.ID,
+			Owner:    account.Owner,
+			Balance:  account.Balance,
+			Currency: account.Currency,
+			CreateAt: timestamppb.New(account.CreatedAt.Time),
+		})
+	}
+	return &v1.ListAccountsRsp{
+		Accounts: pbAccounts,
+	}, nil
+}

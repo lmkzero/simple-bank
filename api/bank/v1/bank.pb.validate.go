@@ -665,3 +665,250 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetAccountRspValidationError{}
+
+// Validate checks the field values on ListAccountsReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ListAccountsReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListAccountsReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListAccountsReqMultiError, or nil if none found.
+func (m *ListAccountsReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListAccountsReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if val := m.GetLimit(); val < 5 || val > 10 {
+		err := ListAccountsReqValidationError{
+			field:  "Limit",
+			reason: "value must be inside range [5, 10]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Offset
+
+	if len(errors) > 0 {
+		return ListAccountsReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListAccountsReqMultiError is an error wrapping multiple validation errors
+// returned by ListAccountsReq.ValidateAll() if the designated constraints
+// aren't met.
+type ListAccountsReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListAccountsReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListAccountsReqMultiError) AllErrors() []error { return m }
+
+// ListAccountsReqValidationError is the validation error returned by
+// ListAccountsReq.Validate if the designated constraints aren't met.
+type ListAccountsReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListAccountsReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListAccountsReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListAccountsReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListAccountsReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListAccountsReqValidationError) ErrorName() string { return "ListAccountsReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ListAccountsReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListAccountsReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListAccountsReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListAccountsReqValidationError{}
+
+// Validate checks the field values on ListAccountsRsp with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ListAccountsRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListAccountsRsp with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListAccountsRspMultiError, or nil if none found.
+func (m *ListAccountsRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListAccountsRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetAccounts() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAccountsRspValidationError{
+						field:  fmt.Sprintf("Accounts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAccountsRspValidationError{
+						field:  fmt.Sprintf("Accounts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAccountsRspValidationError{
+					field:  fmt.Sprintf("Accounts[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListAccountsRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListAccountsRspMultiError is an error wrapping multiple validation errors
+// returned by ListAccountsRsp.ValidateAll() if the designated constraints
+// aren't met.
+type ListAccountsRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListAccountsRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListAccountsRspMultiError) AllErrors() []error { return m }
+
+// ListAccountsRspValidationError is the validation error returned by
+// ListAccountsRsp.Validate if the designated constraints aren't met.
+type ListAccountsRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListAccountsRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListAccountsRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListAccountsRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListAccountsRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListAccountsRspValidationError) ErrorName() string { return "ListAccountsRspValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ListAccountsRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListAccountsRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListAccountsRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListAccountsRspValidationError{}

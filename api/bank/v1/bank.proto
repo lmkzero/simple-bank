@@ -21,6 +21,11 @@ service Bank {
             get: "/accounts/:id:" // ? 工具生成的代码中会截断最后一个冒号，正常定义path反而是错误的
         };
     }
+    rpc ListAccounts (ListAccountsReq) returns (ListAccountsRsp) {
+        option (google.api.http) = {
+            get: "/accounts"
+        };
+    }
 }
 
 message CreateAccountReq {
@@ -49,4 +54,13 @@ message GetAccountReq {
 
 message GetAccountRsp {
     Account account = 1;
+}
+
+message ListAccountsReq {
+    uint32 limit = 1 [(validate.rules).uint32 = {gte:5, lte:10}];   // @gotags: form:"limit"
+    uint32 offset = 2;  // @gotags: form:"offset"
+}
+
+message ListAccountsRsp {
+    repeated Account accounts = 1;
 }
