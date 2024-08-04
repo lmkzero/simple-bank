@@ -39,3 +39,6 @@ bin/
 
 # tools
 makefile
+
+# config file
+app.env

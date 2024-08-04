@@ -6,22 +6,24 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/lmkzero/simple-bank/internal/config"
 	"github.com/lmkzero/simple-bank/internal/data"
 	"github.com/lmkzero/simple-bank/internal/server"
 )
 
-// dbSource your own db url
-const dbSource = ""
-
 func main() {
-	pool, err := pgxpool.New(context.Background(), dbSource)
+	cfg, err := config.Load("./config")
+	if err != nil {
+		log.Fatal("load config: ", err)
+	}
+	pool, err := pgxpool.New(context.Background(), cfg.DBSource)
 	if err != nil {
 		log.Fatal("connect to db: ", err)
 	}
 	store := data.NewStore(pool)
 	server := server.NewServer(store)
 	server.RegisterService()
-	if err := server.Start("127.0.0.1:8080"); err != nil {
+	if err := server.Start(cfg.ServerAddress); err != nil {
 		log.Fatal("start server: ", err)
 	}
 }
