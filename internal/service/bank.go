@@ -3,10 +3,12 @@ package service
 
 import (
 	"context"
+	"net/http"
 
 	v1 "github.com/lmkzero/simple-bank/api/bank/v1"
 	"github.com/lmkzero/simple-bank/internal/data"
 	"github.com/lmkzero/simple-bank/internal/data/db"
+	verr "github.com/varluffy/rich/errcode"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -16,7 +18,7 @@ type BankService struct {
 }
 
 // NewBankService 工厂方法
-func NewBankService(store *data.Store) *BankService {
+func NewBankService(store *data.Store) v1.BankHTTPServer {
 	return &BankService{
 		store: store,
 	}
@@ -24,6 +26,9 @@ func NewBankService(store *data.Store) *BankService {
 
 // CreateAccount 创建账户
 func (b *BankService) CreateAccount(ctx context.Context, req *v1.CreateAccountReq) (*v1.CreateAccountRsp, error) {
+	if err := req.Validate(); err != nil {
+		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
+	}
 	account, err := b.store.CreateAccount(ctx, db.CreateAccountParams{
 		Owner:    req.GetOwner(),
 		Balance:  0,

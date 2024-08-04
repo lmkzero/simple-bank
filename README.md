@@ -27,9 +27,9 @@ protoc插件：https://github.com/bufbuild/protoc-gen-validate
 ### method annotations
 使用option进行标注，定义为HTTP方法。
 
-protoc插件：
-- https://pkg.go.dev/github.com/zhufuyi/sponge/cmd/protoc-gen-go-gin （最好用这个，因为后续会使用Gin框架，所以插件生成的handler需要和Gin handler函数签名保持一致。）
-- https://pkg.go.dev/github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2
+protoc插件：https://github.com/varluffy/protoc-gen-go-gin
+因为后续会使用Gin框架，所以插件生成的handler需要和Gin handler函数签名保持一致。
+同时生成的桩代码包含了RegisterService()方法，所以无需手动注册路由。
 
 ### third_party
 bank.proto的依赖pb文件。
@@ -38,7 +38,8 @@ bank.proto的依赖pb文件。
 ```shell
 protoc --proto_path=./api/bank/v1 \
         --proto_path=./third_party \
-        --go_out=paths=source_relative:./api/bank/v1 \
+        --go_out ./api/bank/v1 --go_opt=paths=source_relative \
+        --go-gin_out ./api/bank/v1 --go-gin_opt=paths=source_relative \
         --validate_out=paths=source_relative,lang=go:./api/bank/v1 \
         bank.proto
 ```

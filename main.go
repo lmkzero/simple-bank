@@ -20,6 +20,7 @@ func main() {
 	}
 	store := data.NewStore(pool)
 	server := server.NewServer(store)
+	server.RegisterService()
 	if err := server.Start("127.0.0.1:8080"); err != nil {
 		log.Fatal("start server: ", err)
 	}
