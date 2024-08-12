@@ -37,10 +37,7 @@ service Bank {
 
 message CreateAccountReq {
     string owner = 1 [(validate.rules).string.min_len = 1];
-    string currency = 2 [(validate.rules).string = {in: [
-        "USD",
-        "EUR"
-      ]}];
+    string currency = 2;    // @gotags: binding:"required,currency"
 }
 
 message CreateAccountRsp {
@@ -76,10 +73,7 @@ message TransferReq {
     int64 from_account_id = 1 [(validate.rules).int64.gt = 0];
     int64 to_account_id = 2 [(validate.rules).int64.gt = 0];
     int64 amount = 3 [(validate.rules).int64.gt = 0];
-    string currency = 4 [(validate.rules).string = {in: [
-        "USD",
-        "EUR"
-    ]}];
+    string currency = 4;    // @gotags: binding:"required,currency"
 }
 
 message TransferRsp {

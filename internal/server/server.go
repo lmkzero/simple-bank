@@ -2,9 +2,14 @@
 package server
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	v1 "github.com/lmkzero/simple-bank/api/bank/v1"
 	"github.com/lmkzero/simple-bank/internal/data"
+	gv "github.com/lmkzero/simple-bank/internal/gateway/validator"
 	"github.com/lmkzero/simple-bank/internal/service"
 )
 
@@ -22,6 +27,12 @@ func NewServer(store *data.Store) *Server {
 	}
 }
 
+// Init 初始化部分依赖
+func (s *Server) Init() error {
+	gv.Init()
+	return nil
+}
+
 // Start 启动服务
 func (s *Server) Start(address string) error {
 	return s.router.Run(address)
@@ -30,4 +41,18 @@ func (s *Server) Start(address string) error {
 // RegisterService 注册路由handler
 func (s *Server) RegisterService() {
 	v1.RegisterBankHTTPServer(s.router, s.service)
+}
+
+// RegisterValidator 注册自定义校验插件
+func (s *Server) RegisterValidator() error {
+	v, ok := binding.Validator.Engine().(*validator.Validate)
+	if !ok {
+		return fmt.Errorf("fail to init validator")
+	}
+	for tag, fn := range gv.CustomValidators() {
+		if err := v.RegisterValidation(tag, fn); err != nil {
+			return err
+		}
+	}
+	return nil
 }

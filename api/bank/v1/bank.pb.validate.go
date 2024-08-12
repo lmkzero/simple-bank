@@ -68,16 +68,7 @@ func (m *CreateAccountReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if _, ok := _CreateAccountReq_Currency_InLookup[m.GetCurrency()]; !ok {
-		err := CreateAccountReqValidationError{
-			field:  "Currency",
-			reason: "value must be in list [USD EUR]",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Currency
 
 	if len(errors) > 0 {
 		return CreateAccountReqMultiError(errors)
@@ -156,11 +147,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateAccountReqValidationError{}
-
-var _CreateAccountReq_Currency_InLookup = map[string]struct{}{
-	"USD": {},
-	"EUR": {},
-}
 
 // Validate checks the field values on CreateAccountRsp with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -968,16 +954,7 @@ func (m *TransferReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if _, ok := _TransferReq_Currency_InLookup[m.GetCurrency()]; !ok {
-		err := TransferReqValidationError{
-			field:  "Currency",
-			reason: "value must be in list [USD EUR]",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for Currency
 
 	if len(errors) > 0 {
 		return TransferReqMultiError(errors)
@@ -1055,11 +1032,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TransferReqValidationError{}
-
-var _TransferReq_Currency_InLookup = map[string]struct{}{
-	"USD": {},
-	"EUR": {},
-}
 
 // Validate checks the field values on TransferRsp with the rules defined in
 // the proto definition for this message. If any rules are violated, the first

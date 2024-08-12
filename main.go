@@ -22,6 +22,12 @@ func main() {
 	}
 	store := data.NewStore(pool)
 	server := server.NewServer(store)
+	if err := server.Init(); err != nil {
+		log.Fatal("init server: ", err)
+	}
+	if err := server.RegisterValidator(); err != nil {
+		log.Fatal("register validator: ", err)
+	}
 	server.RegisterService()
 	if err := server.Start(cfg.ServerAddress); err != nil {
 		log.Fatal("start server: ", err)
