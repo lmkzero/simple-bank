@@ -912,3 +912,308 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListAccountsRspValidationError{}
+
+// Validate checks the field values on TransferReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *TransferReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TransferReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in TransferReqMultiError, or
+// nil if none found.
+func (m *TransferReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TransferReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.GetFromAccountId() <= 0 {
+		err := TransferReqValidationError{
+			field:  "FromAccountId",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetToAccountId() <= 0 {
+		err := TransferReqValidationError{
+			field:  "ToAccountId",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetAmount() <= 0 {
+		err := TransferReqValidationError{
+			field:  "Amount",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if _, ok := _TransferReq_Currency_InLookup[m.GetCurrency()]; !ok {
+		err := TransferReqValidationError{
+			field:  "Currency",
+			reason: "value must be in list [USD EUR]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return TransferReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// TransferReqMultiError is an error wrapping multiple validation errors
+// returned by TransferReq.ValidateAll() if the designated constraints aren't met.
+type TransferReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TransferReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TransferReqMultiError) AllErrors() []error { return m }
+
+// TransferReqValidationError is the validation error returned by
+// TransferReq.Validate if the designated constraints aren't met.
+type TransferReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TransferReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TransferReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TransferReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TransferReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TransferReqValidationError) ErrorName() string { return "TransferReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e TransferReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTransferReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TransferReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TransferReqValidationError{}
+
+var _TransferReq_Currency_InLookup = map[string]struct{}{
+	"USD": {},
+	"EUR": {},
+}
+
+// Validate checks the field values on TransferRsp with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *TransferRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TransferRsp with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in TransferRspMultiError, or
+// nil if none found.
+func (m *TransferRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TransferRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetFromAccount()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TransferRspValidationError{
+					field:  "FromAccount",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TransferRspValidationError{
+					field:  "FromAccount",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFromAccount()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return TransferRspValidationError{
+				field:  "FromAccount",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetToAccount()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TransferRspValidationError{
+					field:  "ToAccount",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TransferRspValidationError{
+					field:  "ToAccount",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetToAccount()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return TransferRspValidationError{
+				field:  "ToAccount",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return TransferRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// TransferRspMultiError is an error wrapping multiple validation errors
+// returned by TransferRsp.ValidateAll() if the designated constraints aren't met.
+type TransferRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TransferRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TransferRspMultiError) AllErrors() []error { return m }
+
+// TransferRspValidationError is the validation error returned by
+// TransferRsp.Validate if the designated constraints aren't met.
+type TransferRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TransferRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TransferRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TransferRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TransferRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TransferRspValidationError) ErrorName() string { return "TransferRspValidationError" }
+
+// Error satisfies the builtin error interface
+func (e TransferRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTransferRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TransferRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TransferRspValidationError{}

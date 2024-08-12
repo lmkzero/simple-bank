@@ -99,3 +99,59 @@ func (b *BankService) ListAccounts(ctx context.Context, req *v1.ListAccountsReq)
 		Accounts: pbAccounts,
 	}, nil
 }
+
+// Transfer 转账
+func (b *BankService) Transfer(ctx context.Context, req *v1.TransferReq) (*v1.TransferRsp, error) {
+	if err := req.Validate(); err != nil {
+		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
+	}
+	ok, err := b.isAccountMatched(ctx, req.GetFromAccountId(), req.GetCurrency())
+	if err != nil {
+		return nil, verr.NotFound(http.StatusNotFound, err.Error())
+	}
+	if !ok {
+		return nil, verr.BadRequest(http.StatusBadRequest, "from account is not matched")
+	}
+	ok, err = b.isAccountMatched(ctx, req.GetToAccountId(), req.GetCurrency())
+	if err != nil {
+		return nil, verr.NotFound(http.StatusNotFound, err.Error())
+	}
+	if !ok {
+		return nil, verr.BadRequest(http.StatusBadRequest, "to account is not matched")
+	}
+	results, err := b.store.TransferTx(ctx, data.TransferTxParams{
+		FromAccountID: req.GetFromAccountId(),
+		ToAccountID:   req.GetToAccountId(),
+		Amount:        req.GetAmount(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.TransferRsp{
+		FromAccount: &v1.Account{
+			Id:       results.FromAccount.ID,
+			Owner:    results.FromAccount.Owner,
+			Balance:  results.FromAccount.Balance,
+			Currency: results.FromAccount.Currency,
+			CreateAt: timestamppb.New(results.FromAccount.CreatedAt.Time),
+		},
+		ToAccount: &v1.Account{
+			Id:       results.Transfer.ToAccountID,
+			Owner:    results.ToAccount.Owner,
+			Balance:  results.ToAccount.Balance,
+			Currency: results.ToAccount.Currency,
+			CreateAt: timestamppb.New(results.ToAccount.CreatedAt.Time),
+		},
+	}, nil
+}
+
+func (b *BankService) isAccountMatched(ctx context.Context, accountID int64, currency string) (bool, error) {
+	account, err := b.store.GetAccount(ctx, accountID)
+	if err != nil {
+		return false, err
+	}
+	if account.Currency != currency {
+		return false, nil
+	}
+	return true, nil
+}

@@ -21,9 +21,16 @@ service Bank {
             get: "/accounts/:id:" // ? 工具生成的代码中会截断最后一个冒号，正常定义path反而是错误的
         };
     }
+    // ListAccounts 账户列表查询
     rpc ListAccounts (ListAccountsReq) returns (ListAccountsRsp) {
         option (google.api.http) = {
             get: "/accounts"
+        };
+    }
+    // Transfer 转账
+    rpc Transfer (TransferReq) returns (TransferRsp) {
+        option (google.api.http) = {
+            post: "/transfer"
         };
     }
 }
@@ -63,4 +70,19 @@ message ListAccountsReq {
 
 message ListAccountsRsp {
     repeated Account accounts = 1;
+}
+
+message TransferReq {
+    int64 from_account_id = 1 [(validate.rules).int64.gt = 0];
+    int64 to_account_id = 2 [(validate.rules).int64.gt = 0];
+    int64 amount = 3 [(validate.rules).int64.gt = 0];
+    string currency = 4 [(validate.rules).string = {in: [
+        "USD",
+        "EUR"
+    ]}];
+}
+
+message TransferRsp {
+    Account from_account = 1;
+    Account to_account = 2;
 }

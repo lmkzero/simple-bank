@@ -20,6 +20,8 @@ type BankHTTPServer interface {
 	GetAccount(context.Context, *GetAccountReq) (*GetAccountRsp, error)
 
 	ListAccounts(context.Context, *ListAccountsReq) (*ListAccountsRsp, error)
+
+	Transfer(context.Context, *TransferReq) (*TransferRsp, error)
 }
 
 func RegisterBankHTTPServer(r gin.IRouter, srv BankHTTPServer) {
@@ -103,6 +105,27 @@ func (s *Bank) ListAccounts_0(ctx *gin.Context) {
 	ginx.Response(ctx, out)
 }
 
+func (s *Bank) Transfer_0(ctx *gin.Context) {
+	var in TransferReq
+
+	if err := ginx.ShouldBind(ctx, &in); err != nil {
+		ginx.ErrorResponse(ctx, err)
+		return
+	}
+	md := metadata.New(nil)
+	for k, v := range ctx.Request.Header {
+		md.Set(k, v...)
+	}
+	newCtx := metadata.NewIncomingContext(ctx.Request.Context(), md)
+	out, err := s.server.(BankHTTPServer).Transfer(newCtx, &in)
+	if err != nil {
+		ginx.ErrorResponse(ctx, err)
+		return
+	}
+
+	ginx.Response(ctx, out)
+}
+
 func (s *Bank) RegisterService() {
 
 	s.router.Handle("POST", "/accounts", s.CreateAccount_0)
@@ -110,5 +133,7 @@ func (s *Bank) RegisterService() {
 	s.router.Handle("GET", "/accounts/:id", s.GetAccount_0)
 
 	s.router.Handle("GET", "/accounts", s.ListAccounts_0)
+
+	s.router.Handle("POST", "/transfer", s.Transfer_0)
 
 }
