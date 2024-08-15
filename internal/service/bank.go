@@ -8,6 +8,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	v1 "github.com/lmkzero/simple-bank/api/bank/v1"
+	"github.com/lmkzero/simple-bank/internal/biz/auth"
 	"github.com/lmkzero/simple-bank/internal/data"
 	"github.com/lmkzero/simple-bank/internal/data/db"
 	verr "github.com/varluffy/rich/errcode"
@@ -24,6 +25,33 @@ func NewBankService(store *data.Store) v1.BankHTTPServer {
 	return &BankService{
 		store: store,
 	}
+}
+
+// CreateUser 创建用户
+func (b *BankService) CreateUser(ctx context.Context, req *v1.CreateUserReq) (*v1.CreateUserRsp, error) {
+	if err := req.Validate(); err != nil {
+		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
+	}
+	hp, err := auth.HashPassword(req.GetPassword())
+	if err != nil {
+		return nil, verr.InternalServer(http.StatusInternalServerError, err.Error())
+	}
+	user, err := b.store.CreateUser(ctx, db.CreateUserParams{
+		Username:       req.GetUserName(),
+		HashedPassword: hp,
+		FullName:       req.GetFullName(),
+		Email:          req.GetEmail(),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.CreateUserRsp{
+		UserName:          user.Username,
+		FullName:          user.FullName,
+		Email:             user.Email,
+		PasswordChangedAt: timestamppb.New(user.PasswordChangedAt.Time),
+		CreateAt:          timestamppb.New(user.CreatedAt.Time),
+	}, nil
 }
 
 // CreateAccount 创建账户
