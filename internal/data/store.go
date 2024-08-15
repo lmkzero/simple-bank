@@ -9,7 +9,7 @@ import (
 // Store 提供封装的db方法和事务
 type Store struct {
 	pool *pgxpool.Pool
-	*db.Queries
+	db.Querier
 }
 
 // NewStore 工厂方法
@@ -17,6 +17,6 @@ type Store struct {
 func NewStore(pool *pgxpool.Pool) *Store {
 	return &Store{
 		pool:    pool,
-		Queries: db.New(pool),
+		Querier: db.New(pool),
 	}
 }
