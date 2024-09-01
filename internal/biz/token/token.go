@@ -72,3 +72,11 @@ func (p *Payload) GetSubject() (string, error) {
 func (p *Payload) GetAudience() (jwt.ClaimStrings, error) {
 	return jwt.ClaimStrings{}, nil
 }
+
+// Valid 自定义校验方法
+func (p *Payload) Valid() error {
+	if now := time.Now(); now.After(p.ExpiredAt) {
+		return ErrExpiredToken
+	}
+	return nil
+}
