@@ -1,6 +1,8 @@
 # simple-bank
 my project for [backend master class](https://www.youtube.com/playlist?list=PLy_6D98if3ULEtXtNSY_2qN21VCKgoQAE)
 
+repository of the class by TECH SCHOOL: https://github.com/techschool/simplebank
+
 ## Setting up
 ### db migration
 cli工具: https://github.com/golang-migrate/migrate
