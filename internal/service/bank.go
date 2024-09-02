@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	v1 "github.com/lmkzero/simple-bank/api/bank/v1"
 	"github.com/lmkzero/simple-bank/internal/biz/auth"
+	"github.com/lmkzero/simple-bank/internal/biz/token"
+	"github.com/lmkzero/simple-bank/internal/config"
 	"github.com/lmkzero/simple-bank/internal/data"
 	"github.com/lmkzero/simple-bank/internal/data/db"
 	verr "github.com/varluffy/rich/errcode"
@@ -18,12 +20,16 @@ import (
 // BankService 银行账户服务
 type BankService struct {
 	store *data.Store
+	token token.Manager
+	cfg   *config.AppConfig
 }
 
 // NewBankService 工厂方法
-func NewBankService(store *data.Store) v1.BankHTTPServer {
+func NewBankService(store *data.Store, token token.Manager, cfg *config.AppConfig) v1.BankHTTPServer {
 	return &BankService{
 		store: store,
+		token: token,
+		cfg:   cfg,
 	}
 }
 
@@ -46,11 +52,49 @@ func (b *BankService) CreateUser(ctx context.Context, req *v1.CreateUserReq) (*v
 		return nil, err
 	}
 	return &v1.CreateUserRsp{
-		UserName:          user.Username,
-		FullName:          user.FullName,
-		Email:             user.Email,
-		PasswordChangedAt: timestamppb.New(user.PasswordChangedAt.Time),
-		CreateAt:          timestamppb.New(user.CreatedAt.Time),
+		CreatedUser: &v1.User{
+			UserName:          user.Username,
+			FullName:          user.FullName,
+			Email:             user.Email,
+			PasswordChangedAt: timestamppb.New(user.PasswordChangedAt.Time),
+			CreateAt:          timestamppb.New(user.CreatedAt.Time),
+		},
+	}, nil
+}
+
+// Login 用户登陆
+func (b *BankService) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRsp, error) {
+	if err := req.Validate(); err != nil {
+		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
+	}
+	user, err := b.store.GetUser(ctx, req.GetUserName())
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, verr.NotFound(http.StatusNotFound, err.Error())
+	}
+	if err != nil {
+		return nil, verr.InternalServer(http.StatusInternalServerError, err.Error())
+	}
+	isValid, err := auth.IsPasswordValid(req.GetPassword(), user.HashedPassword)
+	if err != nil {
+		return nil, verr.Unauthorized(http.StatusUnauthorized, err.Error())
+
+	}
+	if !isValid {
+		return nil, verr.Unauthorized(http.StatusUnauthorized, "password is not valid")
+	}
+	accessToken, err := b.token.Create(req.GetUserName(), b.cfg.AccessTokenDuration)
+	if err != nil {
+		return nil, verr.InternalServer(http.StatusInternalServerError, err.Error())
+	}
+	return &v1.LoginRsp{
+		AccessToken: accessToken,
+		UserInfo: &v1.User{
+			UserName:          user.Username,
+			FullName:          user.FullName,
+			Email:             user.Email,
+			PasswordChangedAt: timestamppb.New(user.PasswordChangedAt.Time),
+			CreateAt:          timestamppb.New(user.CreatedAt.Time),
+		},
 	}, nil
 }
 

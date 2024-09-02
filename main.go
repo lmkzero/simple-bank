@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/lmkzero/simple-bank/internal/biz/token/paseto"
 	"github.com/lmkzero/simple-bank/internal/config"
 	"github.com/lmkzero/simple-bank/internal/data"
 	"github.com/lmkzero/simple-bank/internal/server"
@@ -21,7 +22,11 @@ func main() {
 		log.Fatal("connect to db: ", err)
 	}
 	store := data.NewStore(pool)
-	server := server.NewServer(store)
+	token, err := paseto.New(cfg.TokenSecret)
+	if err != nil {
+		log.Fatal("init token manager: ", err)
+	}
+	server := server.NewServer(store, token, cfg)
 	if err := server.Init(); err != nil {
 		log.Fatal("init server: ", err)
 	}

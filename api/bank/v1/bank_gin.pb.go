@@ -23,6 +23,8 @@ type BankHTTPServer interface {
 
 	ListAccounts(context.Context, *ListAccountsReq) (*ListAccountsRsp, error)
 
+	Login(context.Context, *LoginReq) (*LoginRsp, error)
+
 	Transfer(context.Context, *TransferReq) (*TransferRsp, error)
 }
 
@@ -52,6 +54,27 @@ func (s *Bank) CreateUser_0(ctx *gin.Context) {
 	}
 	newCtx := metadata.NewIncomingContext(ctx.Request.Context(), md)
 	out, err := s.server.(BankHTTPServer).CreateUser(newCtx, &in)
+	if err != nil {
+		ginx.ErrorResponse(ctx, err)
+		return
+	}
+
+	ginx.Response(ctx, out)
+}
+
+func (s *Bank) Login_0(ctx *gin.Context) {
+	var in LoginReq
+
+	if err := ginx.ShouldBind(ctx, &in); err != nil {
+		ginx.ErrorResponse(ctx, err)
+		return
+	}
+	md := metadata.New(nil)
+	for k, v := range ctx.Request.Header {
+		md.Set(k, v...)
+	}
+	newCtx := metadata.NewIncomingContext(ctx.Request.Context(), md)
+	out, err := s.server.(BankHTTPServer).Login(newCtx, &in)
 	if err != nil {
 		ginx.ErrorResponse(ctx, err)
 		return
@@ -152,6 +175,8 @@ func (s *Bank) Transfer_0(ctx *gin.Context) {
 func (s *Bank) RegisterService() {
 
 	s.router.Handle("POST", "/users", s.CreateUser_0)
+
+	s.router.Handle("POST", "/users/login", s.Login_0)
 
 	s.router.Handle("POST", "/accounts", s.CreateAccount_0)
 

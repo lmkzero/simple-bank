@@ -254,18 +254,12 @@ func (m *CreateUserRsp) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UserName
-
-	// no validation rules for FullName
-
-	// no validation rules for Email
-
 	if all {
-		switch v := interface{}(m.GetPasswordChangedAt()).(type) {
+		switch v := interface{}(m.GetCreatedUser()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CreateUserRspValidationError{
-					field:  "PasswordChangedAt",
+					field:  "CreatedUser",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -273,45 +267,16 @@ func (m *CreateUserRsp) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, CreateUserRspValidationError{
-					field:  "PasswordChangedAt",
+					field:  "CreatedUser",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPasswordChangedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetCreatedUser()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreateUserRspValidationError{
-				field:  "PasswordChangedAt",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetCreateAt()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, CreateUserRspValidationError{
-					field:  "CreateAt",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, CreateUserRspValidationError{
-					field:  "CreateAt",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetCreateAt()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return CreateUserRspValidationError{
-				field:  "CreateAt",
+				field:  "CreatedUser",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -395,6 +360,421 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateUserRspValidationError{}
+
+// Validate checks the field values on User with the rules defined in the proto
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
+func (m *User) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on User with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in UserMultiError, or nil if none found.
+func (m *User) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *User) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for UserName
+
+	// no validation rules for FullName
+
+	// no validation rules for Email
+
+	if all {
+		switch v := interface{}(m.GetPasswordChangedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UserValidationError{
+					field:  "PasswordChangedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UserValidationError{
+					field:  "PasswordChangedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPasswordChangedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UserValidationError{
+				field:  "PasswordChangedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetCreateAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UserValidationError{
+					field:  "CreateAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UserValidationError{
+					field:  "CreateAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreateAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UserValidationError{
+				field:  "CreateAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return UserMultiError(errors)
+	}
+
+	return nil
+}
+
+// UserMultiError is an error wrapping multiple validation errors returned by
+// User.ValidateAll() if the designated constraints aren't met.
+type UserMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UserMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UserMultiError) AllErrors() []error { return m }
+
+// UserValidationError is the validation error returned by User.Validate if the
+// designated constraints aren't met.
+type UserValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UserValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UserValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UserValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UserValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UserValidationError) ErrorName() string { return "UserValidationError" }
+
+// Error satisfies the builtin error interface
+func (e UserValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUser.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UserValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UserValidationError{}
+
+// Validate checks the field values on LoginReq with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *LoginReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LoginReq with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in LoginReqMultiError, or nil
+// if none found.
+func (m *LoginReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LoginReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if !_LoginReq_UserName_Pattern.MatchString(m.GetUserName()) {
+		err := LoginReqValidationError{
+			field:  "UserName",
+			reason: "value does not match regex pattern \"^[A-Za-z0-9][A-Za-z0-9_-]*$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetPassword()) < 6 {
+		err := LoginReqValidationError{
+			field:  "Password",
+			reason: "value length must be at least 6 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return LoginReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// LoginReqMultiError is an error wrapping multiple validation errors returned
+// by LoginReq.ValidateAll() if the designated constraints aren't met.
+type LoginReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LoginReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LoginReqMultiError) AllErrors() []error { return m }
+
+// LoginReqValidationError is the validation error returned by
+// LoginReq.Validate if the designated constraints aren't met.
+type LoginReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LoginReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LoginReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LoginReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LoginReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LoginReqValidationError) ErrorName() string { return "LoginReqValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LoginReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLoginReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LoginReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LoginReqValidationError{}
+
+var _LoginReq_UserName_Pattern = regexp.MustCompile("^[A-Za-z0-9][A-Za-z0-9_-]*$")
+
+// Validate checks the field values on LoginRsp with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *LoginRsp) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LoginRsp with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in LoginRspMultiError, or nil
+// if none found.
+func (m *LoginRsp) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LoginRsp) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AccessToken
+
+	if all {
+		switch v := interface{}(m.GetUserInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LoginRspValidationError{
+					field:  "UserInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LoginRspValidationError{
+					field:  "UserInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUserInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LoginRspValidationError{
+				field:  "UserInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return LoginRspMultiError(errors)
+	}
+
+	return nil
+}
+
+// LoginRspMultiError is an error wrapping multiple validation errors returned
+// by LoginRsp.ValidateAll() if the designated constraints aren't met.
+type LoginRspMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LoginRspMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LoginRspMultiError) AllErrors() []error { return m }
+
+// LoginRspValidationError is the validation error returned by
+// LoginRsp.Validate if the designated constraints aren't met.
+type LoginRspValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LoginRspValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LoginRspValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LoginRspValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LoginRspValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LoginRspValidationError) ErrorName() string { return "LoginRspValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LoginRspValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLoginRsp.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LoginRspValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LoginRspValidationError{}
 
 // Validate checks the field values on CreateAccountReq with the rules defined
 // in the proto definition for this message. If any rules are violated, the
