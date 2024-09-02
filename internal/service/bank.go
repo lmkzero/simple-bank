@@ -13,6 +13,7 @@ import (
 	"github.com/lmkzero/simple-bank/internal/config"
 	"github.com/lmkzero/simple-bank/internal/data"
 	"github.com/lmkzero/simple-bank/internal/data/db"
+	"github.com/lmkzero/simple-bank/internal/deps"
 	verr "github.com/varluffy/rich/errcode"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -25,11 +26,11 @@ type BankService struct {
 }
 
 // NewBankService 工厂方法
-func NewBankService(store *data.Store, token token.Manager, cfg *config.AppConfig) v1.BankHTTPServer {
+func NewBankService(deps *deps.Info) v1.BankHTTPServer {
 	return &BankService{
-		store: store,
-		token: token,
-		cfg:   cfg,
+		store: deps.Store,
+		token: deps.Token,
+		cfg:   deps.Cfg,
 	}
 }
 

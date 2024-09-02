@@ -8,9 +8,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	v1 "github.com/lmkzero/simple-bank/api/bank/v1"
-	"github.com/lmkzero/simple-bank/internal/biz/token"
-	"github.com/lmkzero/simple-bank/internal/config"
-	"github.com/lmkzero/simple-bank/internal/data"
+	"github.com/lmkzero/simple-bank/internal/deps"
 	gv "github.com/lmkzero/simple-bank/internal/gateway/validator"
 	"github.com/lmkzero/simple-bank/internal/service"
 )
@@ -22,9 +20,9 @@ type Server struct {
 }
 
 // NewServer 工厂方法
-func NewServer(store *data.Store, token token.Manager, cfg *config.AppConfig) *Server {
+func NewServer(deps *deps.Info) *Server {
 	return &Server{
-		service: service.NewBankService(store, token, cfg),
+		service: service.NewBankService(deps),
 		router:  gin.Default(),
 	}
 }
