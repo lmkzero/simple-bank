@@ -17,6 +17,7 @@ import (
 type Server struct {
 	service v1.BankHTTPServer
 	router  *gin.Engine
+	deps    *deps.Info
 }
 
 // NewServer 工厂方法
@@ -24,6 +25,7 @@ func NewServer(deps *deps.Info) *Server {
 	return &Server{
 		service: service.NewBankService(deps),
 		router:  gin.Default(),
+		deps:    deps,
 	}
 }
 
@@ -40,7 +42,7 @@ func (s *Server) Start(address string) error {
 
 // RegisterService 注册路由handler
 func (s *Server) RegisterService() {
-	v1.RegisterBankHTTPServer(s.router, s.service)
+	v1.RegisterBankHTTPServer(s.router, s.service, s.deps)
 }
 
 // RegisterValidator 注册自定义校验插件

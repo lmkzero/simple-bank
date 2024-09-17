@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	v1 "github.com/lmkzero/simple-bank/api/bank/v1"
@@ -15,6 +16,7 @@ import (
 	"github.com/lmkzero/simple-bank/internal/data/db"
 	"github.com/lmkzero/simple-bank/internal/deps"
 	verr "github.com/varluffy/rich/errcode"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -104,8 +106,12 @@ func (b *BankService) CreateAccount(ctx context.Context, req *v1.CreateAccountRe
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
+	payload, err := b.parseAuthHeader(ctx)
+	if err != nil {
+		return nil, err
+	}
 	account, err := b.store.CreateAccount(ctx, db.CreateAccountParams{
-		Owner:    req.GetOwner(),
+		Owner:    payload.UserName,
 		Balance:  0,
 		Currency: req.GetCurrency(),
 	})
@@ -123,6 +129,19 @@ func (b *BankService) CreateAccount(ctx context.Context, req *v1.CreateAccountRe
 	}, nil
 }
 
+func (b *BankService) parseAuthHeader(ctx context.Context) (*token.Payload, error) {
+	values := metadata.ValueFromIncomingContext(ctx, "authorization")
+	if len(values) != 1 {
+		return nil, verr.Unauthorized(http.StatusUnauthorized, "illegal authorization code")
+	}
+	fields := strings.Fields(values[0])
+	payload, err := b.token.Verify(fields[1])
+	if err != nil {
+		return nil, verr.Unauthorized(http.StatusUnauthorized, err.Error())
+	}
+	return payload, nil
+}
+
 // GetAccount 查询账户
 func (b *BankService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v1.GetAccountRsp, error) {
 	if err := req.Validate(); err != nil {
@@ -134,6 +153,13 @@ func (b *BankService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v
 	}
 	if err != nil {
 		return nil, err
+	}
+	payload, err := b.parseAuthHeader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if account.Owner != payload.UserName {
+		return nil, verr.Unauthorized(http.StatusUnauthorized, "account owner doesn't match")
 	}
 	return &v1.GetAccountRsp{
 		Account: &v1.Account{
@@ -151,7 +177,12 @@ func (b *BankService) ListAccounts(ctx context.Context, req *v1.ListAccountsReq)
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
+	payload, err := b.parseAuthHeader(ctx)
+	if err != nil {
+		return nil, err
+	}
 	accounts, err := b.store.ListAccounts(ctx, db.ListAccountsParams{
+		Owner:  payload.UserName,
 		Limit:  int32(req.GetLimit()),
 		Offset: int32(req.GetOffset()),
 	})
@@ -178,14 +209,21 @@ func (b *BankService) Transfer(ctx context.Context, req *v1.TransferReq) (*v1.Tr
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
-	ok, err := b.isAccountMatched(ctx, req.GetFromAccountId(), req.GetCurrency())
+	fromAccount, ok, err := b.isAccountMatched(ctx, req.GetFromAccountId(), req.GetCurrency())
 	if err != nil {
 		return nil, verr.NotFound(http.StatusNotFound, err.Error())
 	}
 	if !ok {
 		return nil, verr.BadRequest(http.StatusBadRequest, "from account is not matched")
 	}
-	ok, err = b.isAccountMatched(ctx, req.GetToAccountId(), req.GetCurrency())
+	payload, err := b.parseAuthHeader(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if fromAccount.Owner != payload.UserName {
+		return nil, verr.Unauthorized(http.StatusUnauthorized, "user can't operate the current account")
+	}
+	_, ok, err = b.isAccountMatched(ctx, req.GetToAccountId(), req.GetCurrency())
 	if err != nil {
 		return nil, verr.NotFound(http.StatusNotFound, err.Error())
 	}
@@ -218,13 +256,14 @@ func (b *BankService) Transfer(ctx context.Context, req *v1.TransferReq) (*v1.Tr
 	}, nil
 }
 
-func (b *BankService) isAccountMatched(ctx context.Context, accountID int64, currency string) (bool, error) {
+func (b *BankService) isAccountMatched(ctx context.Context,
+	accountID int64, currency string) (db.Account, bool, error) {
 	account, err := b.store.GetAccount(ctx, accountID)
 	if err != nil {
-		return false, err
+		return db.Account{}, false, err
 	}
 	if account.Currency != currency {
-		return false, nil
+		return account, false, nil
 	}
-	return true, nil
+	return account, true, nil
 }
