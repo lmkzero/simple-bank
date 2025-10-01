@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package bank.v1_1;
+
+option go_package = "github.com/lmkzero/simple-bank/api/bank/v1_1;v1_1";
+
+import "google/protobuf/timestamp.proto";
+import "validate/validate.proto";
+
+service Bank {
+    // CreateUser 创建用户
+    //@alias="/user/create"
+    rpc CreateUser (CreateUserReq) returns (CreateUserRsp);
+    // Login 用户登陆
+    //@alias="/user/login"
+    rpc Login (LoginReq) returns (LoginRsp);
+    // CreateAccount 创建账户
+    //@alias="/account/create"
+    rpc CreateAccount (CreateAccountReq) returns (CreateAccountRsp);
+    // GetAccount 查询账户
+    //@alias="/account"
+    rpc GetAccount (GetAccountReq) returns (GetAccountRsp);
+    // ListAccounts 账户列表查询
+    //@alias="/account/list"
+    rpc ListAccounts (ListAccountsReq) returns (ListAccountsRsp);
+    // Transfer 转账
+    //@alias="/transfer"
+    rpc Transfer (TransferReq) returns (TransferRsp);
+}
+
+message CreateUserReq {
+    string user_name = 1 [(validate.rules).string.pattern = "^[A-Za-z0-9][A-Za-z0-9_-]*$"];
+    string full_name = 2 [(validate.rules).string.min_len = 1];
+    string password = 3 [(validate.rules).string.min_len = 6];
+    string email = 4 [(validate.rules).string.email = true];
+}
+
+message CreateUserRsp {
+    User created_user = 1;
+}
+
+message User {
+    string user_name = 1;
+    string full_name = 2;
+    string email = 4;
+    google.protobuf.Timestamp password_changed_at = 5;
+    google.protobuf.Timestamp create_at = 6;
+}
+
+message LoginReq {
+    string user_name = 1 [(validate.rules).string.pattern = "^[A-Za-z0-9][A-Za-z0-9_-]*$"];
+    string password = 2 [(validate.rules).string.min_len = 6];
+}
+
+message LoginRsp {
+    string access_token = 1;
+    User user_info = 2;
+}
+
+message CreateAccountReq {
+    string owner = 1 [(validate.rules).string.min_len = 1];
+    string currency = 2;
+}
+
+message CreateAccountRsp {
+    Account created_account = 1;
+}
+
+message Account {
+	int64 id = 1;
+    string owner = 2;
+	int64 balance = 3;
+	string currency = 4;
+	google.protobuf.Timestamp create_at = 5;
+}
+
+message GetAccountReq {
+    int64 id = 1 [(validate.rules).int64.gt = 0];
+}
+
+message GetAccountRsp {
+    Account account = 1;
+}
+
+message ListAccountsReq {
+    uint32 limit = 1 [(validate.rules).uint32 = {gte:5, lte:10}];
+    uint32 offset = 2;
+}
+
+message ListAccountsRsp {
+    repeated Account accounts = 1;
+}
+
+message TransferReq {
+    int64 from_account_id = 1 [(validate.rules).int64.gt = 0];
+    int64 to_account_id = 2 [(validate.rules).int64.gt = 0];
+    int64 amount = 3 [(validate.rules).int64.gt = 0];
+    string currency = 4;
+}
+
+message TransferRsp {
+    Account from_account = 1;
+    Account to_account = 2;
+}
