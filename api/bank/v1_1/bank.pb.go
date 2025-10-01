@@ -816,17 +816,19 @@ const file_bank_proto_rawDesc = "" +
 	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\bpassword\"[\n" +
 	"\bLoginRsp\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12,\n" +
-	"\tuser_info\x18\x02 \x01(\v2\x0f.bank.v1_1.UserR\buserInfo\"M\n" +
+	"\tuser_info\x18\x02 \x01(\v2\x0f.bank.v1_1.UserR\buserInfo\"^\n" +
 	"\x10CreateAccountReq\x12\x1d\n" +
-	"\x05owner\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05owner\x12\x1a\n" +
-	"\bcurrency\x18\x02 \x01(\tR\bcurrency\"O\n" +
+	"\x05owner\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05owner\x12+\n" +
+	"\bcurrency\x18\x02 \x01(\tB\x0f\xfaB\fr\n" +
+	"R\x03USDR\x03EURR\bcurrency\"O\n" +
 	"\x10CreateAccountRsp\x12;\n" +
-	"\x0fcreated_account\x18\x01 \x01(\v2\x12.bank.v1_1.AccountR\x0ecreatedAccount\"\x9e\x01\n" +
+	"\x0fcreated_account\x18\x01 \x01(\v2\x12.bank.v1_1.AccountR\x0ecreatedAccount\"\xaf\x01\n" +
 	"\aAccount\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05owner\x18\x02 \x01(\tR\x05owner\x12\x18\n" +
-	"\abalance\x18\x03 \x01(\x03R\abalance\x12\x1a\n" +
-	"\bcurrency\x18\x04 \x01(\tR\bcurrency\x127\n" +
+	"\abalance\x18\x03 \x01(\x03R\abalance\x12+\n" +
+	"\bcurrency\x18\x04 \x01(\tB\x0f\xfaB\fr\n" +
+	"R\x03USDR\x03EURR\bcurrency\x127\n" +
 	"\tcreate_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\bcreateAt\"(\n" +
 	"\rGetAccountReq\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x02id\"=\n" +
@@ -837,12 +839,13 @@ const file_bank_proto_rawDesc = "" +
 	"(\x05R\x05limit\x12\x16\n" +
 	"\x06offset\x18\x02 \x01(\rR\x06offset\"A\n" +
 	"\x0fListAccountsRsp\x12.\n" +
-	"\baccounts\x18\x01 \x03(\v2\x12.bank.v1_1.AccountR\baccounts\"\xa8\x01\n" +
+	"\baccounts\x18\x01 \x03(\v2\x12.bank.v1_1.AccountR\baccounts\"\xb9\x01\n" +
 	"\vTransferReq\x12/\n" +
 	"\x0ffrom_account_id\x18\x01 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\rfromAccountId\x12+\n" +
 	"\rto_account_id\x18\x02 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\vtoAccountId\x12\x1f\n" +
-	"\x06amount\x18\x03 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x06amount\x12\x1a\n" +
-	"\bcurrency\x18\x04 \x01(\tR\bcurrency\"w\n" +
+	"\x06amount\x18\x03 \x01(\x03B\a\xfaB\x04\"\x02 \x00R\x06amount\x12+\n" +
+	"\bcurrency\x18\x04 \x01(\tB\x0f\xfaB\fr\n" +
+	"R\x03USDR\x03EURR\bcurrency\"w\n" +
 	"\vTransferRsp\x125\n" +
 	"\ffrom_account\x18\x01 \x01(\v2\x12.bank.v1_1.AccountR\vfromAccount\x121\n" +
 	"\n" +

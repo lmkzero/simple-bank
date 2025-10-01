@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lmkzero/simple-bank/internal/biz/token"
-	"github.com/lmkzero/simple-bank/internal/random"
+	"github.com/lmkzero/simple-bank/internal/entity/token"
+	"github.com/lmkzero/simple-bank/pkg/random"
 	"github.com/stretchr/testify/require"
 )
 

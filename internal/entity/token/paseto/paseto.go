@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lmkzero/simple-bank/internal/biz/token"
+	"github.com/lmkzero/simple-bank/internal/entity/token"
 	"github.com/o1egl/paseto/v2"
 	"golang.org/x/crypto/chacha20poly1305"
 )

@@ -2,12 +2,14 @@
 package auth
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
-	"github.com/lmkzero/simple-bank/internal/biz/token"
+	"github.com/lmkzero/simple-bank/internal/entity/token"
+	"trpc.group/trpc-go/trpc-go/errs"
+	"trpc.group/trpc-go/trpc-go/filter"
+	thttp "trpc.group/trpc-go/trpc-go/http"
 )
 
 const (
@@ -15,27 +17,24 @@ const (
 	defaultAuthorizationType = "bearer"
 )
 
-// MiddlewareFunc 返回鉴权中间件实现函数
-func MiddlewareFunc(manager token.Manager) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		header := ctx.GetHeader(keyAuthorizationHeader)
-		if len(header) == 0 {
-			ctx.AbortWithError(http.StatusUnauthorized, fmt.Errorf("authorization header is not found"))
-			return
+// NewHandleFunc 工厂方法
+func NewHandleFunc(manager token.Manager) filter.ServerFilter {
+	return func(ctx context.Context, req any, next filter.ServerHandleFunc) (any, error) {
+		httpHeader := thttp.Head(ctx).Request.Header
+		if len(httpHeader) == 0 {
+			return nil, errs.New(http.StatusUnauthorized, "authorization header is not found")
 		}
+		header := httpHeader.Get(keyAuthorizationHeader)
 		fields := strings.Fields(header)
 		if len(fields) != 2 {
-			ctx.AbortWithError(http.StatusUnauthorized, fmt.Errorf("illegal authorization header pattern"))
-			return
+			return nil, errs.New(http.StatusUnauthorized, "illegal authorization header pattern")
 		}
 		if strings.ToLower(fields[0]) != defaultAuthorizationType {
-			ctx.AbortWithError(http.StatusUnauthorized, fmt.Errorf("unsupported authorization type"))
-			return
+			return nil, errs.New(http.StatusUnauthorized, "unsupported authorization type")
 		}
 		if _, err := manager.Verify(fields[1]); err != nil {
-			ctx.AbortWithError(http.StatusUnauthorized, err)
-			return
+			return nil, errs.New(http.StatusUnauthorized, err.Error())
 		}
-		ctx.Next()
+		return next(ctx, req)
 	}
 }

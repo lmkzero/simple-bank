@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/lmkzero/simple-bank/internal/biz/token"
+	"github.com/lmkzero/simple-bank/internal/entity/token"
 )
 
 const minSecretLength = 32

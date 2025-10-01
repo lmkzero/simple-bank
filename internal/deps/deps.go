@@ -6,10 +6,10 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/lmkzero/simple-bank/internal/biz/token"
-	"github.com/lmkzero/simple-bank/internal/biz/token/paseto"
 	"github.com/lmkzero/simple-bank/internal/config"
 	"github.com/lmkzero/simple-bank/internal/data"
+	"github.com/lmkzero/simple-bank/internal/entity/token"
+	"github.com/lmkzero/simple-bank/internal/entity/token/paseto"
 )
 
 // Info 服务依赖项
