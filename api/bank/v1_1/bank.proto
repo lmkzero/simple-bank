@@ -1,50 +1,31 @@
 syntax = "proto3";
 
-package bank.v1;
+package bank.v1_1;
 
-option go_package = "github.com/lmkzero/simple-bank/api/bank/v1;v1";
+option go_package = "github.com/lmkzero/simple-bank/api/bank/v1_1;v1_1";
 
-import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "validate/validate.proto";
 
 service Bank {
     // CreateUser 创建用户
-    rpc CreateUser (CreateUserReq) returns (CreateUserRsp) {
-        option (google.api.http) = {
-            post: "/users"
-        };
-    }
+    //@alias="/user/create"
+    rpc CreateUser (CreateUserReq) returns (CreateUserRsp);
     // Login 用户登陆
-    rpc Login (LoginReq) returns (LoginRsp) {
-        option (google.api.http) = {
-            post: "/users/login"
-        };
-    }
+    //@alias="/user/login"
+    rpc Login (LoginReq) returns (LoginRsp);
     // CreateAccount 创建账户
-    rpc CreateAccount (CreateAccountReq) returns (CreateAccountRsp) {
-        option (google.api.http) = {
-            post: "/accounts"
-        };
-    }
+    //@alias="/account/create"
+    rpc CreateAccount (CreateAccountReq) returns (CreateAccountRsp);
     // GetAccount 查询账户
-    rpc GetAccount (GetAccountReq) returns (GetAccountRsp) {
-        option (google.api.http) = {
-            get: "/accounts/:id:" // ? 工具生成的代码中会截断最后一个冒号，正常定义path反而是错误的
-        };
-    }
+    //@alias="/account"
+    rpc GetAccount (GetAccountReq) returns (GetAccountRsp);
     // ListAccounts 账户列表查询
-    rpc ListAccounts (ListAccountsReq) returns (ListAccountsRsp) {
-        option (google.api.http) = {
-            get: "/accounts"
-        };
-    }
+    //@alias="/account/list"
+    rpc ListAccounts (ListAccountsReq) returns (ListAccountsRsp);
     // Transfer 转账
-    rpc Transfer (TransferReq) returns (TransferRsp) {
-        option (google.api.http) = {
-            post: "/transfer"
-        };
-    }
+    //@alias="/transfer"
+    rpc Transfer (TransferReq) returns (TransferRsp);
 }
 
 message CreateUserReq {
@@ -78,7 +59,7 @@ message LoginRsp {
 
 message CreateAccountReq {
     string owner = 1 [(validate.rules).string.min_len = 1];
-    string currency = 2;    // @gotags: binding:"required,currency"
+    string currency = 2 [(validate.rules).string = {in: ["USD", "EUR"]}];
 }
 
 message CreateAccountRsp {
@@ -89,12 +70,12 @@ message Account {
 	int64 id = 1;
     string owner = 2;
 	int64 balance = 3;
-	string currency = 4;
+	string currency = 4 [(validate.rules).string = {in: ["USD", "EUR"]}];
 	google.protobuf.Timestamp create_at = 5;
 }
 
 message GetAccountReq {
-    int64 id = 1 [(validate.rules).int64.gt = 0];   // @gotags: uri:"id"
+    int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 message GetAccountRsp {
@@ -102,8 +83,8 @@ message GetAccountRsp {
 }
 
 message ListAccountsReq {
-    uint32 limit = 1 [(validate.rules).uint32 = {gte:5, lte:10}];   // @gotags: form:"limit"
-    uint32 offset = 2;  // @gotags: form:"offset"
+    uint32 limit = 1 [(validate.rules).uint32 = {gte:5, lte:10}];
+    uint32 offset = 2;
 }
 
 message ListAccountsRsp {
@@ -114,7 +95,7 @@ message TransferReq {
     int64 from_account_id = 1 [(validate.rules).int64.gt = 0];
     int64 to_account_id = 2 [(validate.rules).int64.gt = 0];
     int64 amount = 3 [(validate.rules).int64.gt = 0];
-    string currency = 4;    // @gotags: binding:"required,currency"
+    string currency = 4 [(validate.rules).string = {in: ["USD", "EUR"]}];
 }
 
 message TransferRsp {

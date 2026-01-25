@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lmkzero/simple-bank/internal/random"
+	"github.com/lmkzero/simple-bank/pkg/random"
 	"github.com/stretchr/testify/require"
 )
 

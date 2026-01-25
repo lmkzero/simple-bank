@@ -4,9 +4,16 @@ package main
 import (
 	"log"
 
+	"github.com/lmkzero/simple-bank/api/bank/v1_1"
 	"github.com/lmkzero/simple-bank/internal/config"
 	"github.com/lmkzero/simple-bank/internal/deps"
-	"github.com/lmkzero/simple-bank/internal/server"
+	"github.com/lmkzero/simple-bank/internal/gateway/auth"
+	"github.com/lmkzero/simple-bank/internal/service"
+	"trpc.group/trpc-go/trpc-go"
+	"trpc.group/trpc-go/trpc-go/server"
+
+	_ "trpc.group/trpc-go/trpc-filter/debuglog"
+	_ "trpc.group/trpc-go/trpc-filter/recovery"
 )
 
 func main() {
@@ -18,15 +25,16 @@ func main() {
 	if err != nil {
 		log.Fatal("init deps: ", err)
 	}
-	server := server.NewServer(deps)
-	if err := server.Init(); err != nil {
-		log.Fatal("init server: ", err)
+	trpcConfig, err := trpc.LoadConfig("./config/trpc_go.yaml")
+	if err != nil {
+		log.Fatalf("load trpc config: %v", err)
 	}
-	if err := server.RegisterValidator(); err != nil {
-		log.Fatal("register validator: ", err)
-	}
-	server.RegisterService()
-	if err := server.Start(cfg.ServerAddress); err != nil {
-		log.Fatal("start server: ", err)
+	s := trpc.NewServerWithConfig(
+		trpcConfig,
+		server.WithFilter(auth.NewHandleFunc(deps.Token)),
+	)
+	v1_1.RegisterBankService(s.Service("trpc.mengkailiu.bank.httpv1"), service.NewBankService(deps))
+	if err := s.Serve(); err != nil {
+		log.Fatalf("trpc run: %v", err)
 	}
 }

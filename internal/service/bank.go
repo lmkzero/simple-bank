@@ -8,13 +8,13 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5"
-	v1 "github.com/lmkzero/simple-bank/api/bank/v1"
-	"github.com/lmkzero/simple-bank/internal/biz/auth"
-	"github.com/lmkzero/simple-bank/internal/biz/token"
+	"github.com/lmkzero/simple-bank/api/bank/v1_1"
 	"github.com/lmkzero/simple-bank/internal/config"
 	"github.com/lmkzero/simple-bank/internal/data"
 	"github.com/lmkzero/simple-bank/internal/data/db"
 	"github.com/lmkzero/simple-bank/internal/deps"
+	"github.com/lmkzero/simple-bank/internal/entity/auth"
+	"github.com/lmkzero/simple-bank/internal/entity/token"
 	verr "github.com/varluffy/rich/errcode"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -28,7 +28,7 @@ type BankService struct {
 }
 
 // NewBankService 工厂方法
-func NewBankService(deps *deps.Info) v1.BankHTTPServer {
+func NewBankService(deps *deps.Info) v1_1.BankService {
 	return &BankService{
 		store: deps.Store,
 		token: deps.Token,
@@ -37,7 +37,7 @@ func NewBankService(deps *deps.Info) v1.BankHTTPServer {
 }
 
 // CreateUser 创建用户
-func (b *BankService) CreateUser(ctx context.Context, req *v1.CreateUserReq) (*v1.CreateUserRsp, error) {
+func (b *BankService) CreateUser(ctx context.Context, req *v1_1.CreateUserReq) (*v1_1.CreateUserRsp, error) {
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
@@ -54,8 +54,8 @@ func (b *BankService) CreateUser(ctx context.Context, req *v1.CreateUserReq) (*v
 	if err != nil {
 		return nil, err
 	}
-	return &v1.CreateUserRsp{
-		CreatedUser: &v1.User{
+	return &v1_1.CreateUserRsp{
+		CreatedUser: &v1_1.User{
 			UserName:          user.Username,
 			FullName:          user.FullName,
 			Email:             user.Email,
@@ -66,7 +66,7 @@ func (b *BankService) CreateUser(ctx context.Context, req *v1.CreateUserReq) (*v
 }
 
 // Login 用户登陆
-func (b *BankService) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRsp, error) {
+func (b *BankService) Login(ctx context.Context, req *v1_1.LoginReq) (*v1_1.LoginRsp, error) {
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
@@ -89,9 +89,9 @@ func (b *BankService) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRsp
 	if err != nil {
 		return nil, verr.InternalServer(http.StatusInternalServerError, err.Error())
 	}
-	return &v1.LoginRsp{
+	return &v1_1.LoginRsp{
 		AccessToken: accessToken,
-		UserInfo: &v1.User{
+		UserInfo: &v1_1.User{
 			UserName:          user.Username,
 			FullName:          user.FullName,
 			Email:             user.Email,
@@ -102,7 +102,7 @@ func (b *BankService) Login(ctx context.Context, req *v1.LoginReq) (*v1.LoginRsp
 }
 
 // CreateAccount 创建账户
-func (b *BankService) CreateAccount(ctx context.Context, req *v1.CreateAccountReq) (*v1.CreateAccountRsp, error) {
+func (b *BankService) CreateAccount(ctx context.Context, req *v1_1.CreateAccountReq) (*v1_1.CreateAccountRsp, error) {
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
@@ -118,8 +118,8 @@ func (b *BankService) CreateAccount(ctx context.Context, req *v1.CreateAccountRe
 	if err != nil {
 		return nil, err
 	}
-	return &v1.CreateAccountRsp{
-		CreatedAccount: &v1.Account{
+	return &v1_1.CreateAccountRsp{
+		CreatedAccount: &v1_1.Account{
 			Id:       account.ID,
 			Owner:    account.Owner,
 			Balance:  account.Balance,
@@ -143,7 +143,7 @@ func (b *BankService) parseAuthHeader(ctx context.Context) (*token.Payload, erro
 }
 
 // GetAccount 查询账户
-func (b *BankService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v1.GetAccountRsp, error) {
+func (b *BankService) GetAccount(ctx context.Context, req *v1_1.GetAccountReq) (*v1_1.GetAccountRsp, error) {
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
@@ -161,8 +161,8 @@ func (b *BankService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v
 	if account.Owner != payload.UserName {
 		return nil, verr.Unauthorized(http.StatusUnauthorized, "account owner doesn't match")
 	}
-	return &v1.GetAccountRsp{
-		Account: &v1.Account{
+	return &v1_1.GetAccountRsp{
+		Account: &v1_1.Account{
 			Id:       account.ID,
 			Owner:    account.Owner,
 			Balance:  account.Balance,
@@ -173,7 +173,7 @@ func (b *BankService) GetAccount(ctx context.Context, req *v1.GetAccountReq) (*v
 }
 
 // ListAccounts 账户列表查询
-func (b *BankService) ListAccounts(ctx context.Context, req *v1.ListAccountsReq) (*v1.ListAccountsRsp, error) {
+func (b *BankService) ListAccounts(ctx context.Context, req *v1_1.ListAccountsReq) (*v1_1.ListAccountsRsp, error) {
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
@@ -189,9 +189,9 @@ func (b *BankService) ListAccounts(ctx context.Context, req *v1.ListAccountsReq)
 	if err != nil {
 		return nil, err
 	}
-	pbAccounts := make([]*v1.Account, 0, len(accounts))
+	pbAccounts := make([]*v1_1.Account, 0, len(accounts))
 	for _, account := range accounts {
-		pbAccounts = append(pbAccounts, &v1.Account{
+		pbAccounts = append(pbAccounts, &v1_1.Account{
 			Id:       account.ID,
 			Owner:    account.Owner,
 			Balance:  account.Balance,
@@ -199,13 +199,13 @@ func (b *BankService) ListAccounts(ctx context.Context, req *v1.ListAccountsReq)
 			CreateAt: timestamppb.New(account.CreatedAt.Time),
 		})
 	}
-	return &v1.ListAccountsRsp{
+	return &v1_1.ListAccountsRsp{
 		Accounts: pbAccounts,
 	}, nil
 }
 
 // Transfer 转账
-func (b *BankService) Transfer(ctx context.Context, req *v1.TransferReq) (*v1.TransferRsp, error) {
+func (b *BankService) Transfer(ctx context.Context, req *v1_1.TransferReq) (*v1_1.TransferRsp, error) {
 	if err := req.Validate(); err != nil {
 		return nil, verr.BadRequest(http.StatusBadRequest, err.Error())
 	}
@@ -238,15 +238,15 @@ func (b *BankService) Transfer(ctx context.Context, req *v1.TransferReq) (*v1.Tr
 	if err != nil {
 		return nil, err
 	}
-	return &v1.TransferRsp{
-		FromAccount: &v1.Account{
+	return &v1_1.TransferRsp{
+		FromAccount: &v1_1.Account{
 			Id:       results.FromAccount.ID,
 			Owner:    results.FromAccount.Owner,
 			Balance:  results.FromAccount.Balance,
 			Currency: results.FromAccount.Currency,
 			CreateAt: timestamppb.New(results.FromAccount.CreatedAt.Time),
 		},
-		ToAccount: &v1.Account{
+		ToAccount: &v1_1.Account{
 			Id:       results.Transfer.ToAccountID,
 			Owner:    results.ToAccount.Owner,
 			Balance:  results.ToAccount.Balance,
